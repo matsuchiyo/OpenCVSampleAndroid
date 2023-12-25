@@ -8,9 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import org.opencv.android.BaseLoaderCallback
 import org.opencv.android.LoaderCallbackInterface
 import org.opencv.android.OpenCVLoader
-import org.opencv.android.Utils
-import org.opencv.core.Mat
-import org.opencv.imgproc.Imgproc
 
 
 class MainActivity : AppCompatActivity() {
@@ -52,8 +49,9 @@ class MainActivity : AppCompatActivity() {
     private fun configureImages() {
         // ref: https://techbooster.org/android/multimedia/15681/
 
-        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.image)
+        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.receipt_light)
 
+        /*
         val mat = Mat()
         Utils.bitmapToMat(bitmap, mat)
 
@@ -63,8 +61,12 @@ class MainActivity : AppCompatActivity() {
 
         val newBitmap = bitmap.copy(bitmap.config, true)
         Utils.matToBitmap(mat, newBitmap)
+         */
 
         findViewById<ImageView>(R.id.image1).setImageBitmap(bitmap)
-        findViewById<ImageView>(R.id.image2).setImageBitmap(newBitmap)
+        val newBitmap = RectangleDetector.detectRectangle(bitmap)
+        if (newBitmap != null) {
+            findViewById<ImageView>(R.id.image2).setImageBitmap(newBitmap)
+        }
     }
 }
