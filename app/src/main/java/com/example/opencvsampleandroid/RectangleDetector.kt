@@ -62,7 +62,7 @@ object RectangleDetector {
 
         val receiptRect = contourToRect(receiptContour)
         val receiptRectInOriginal = Mat(4, 1, CvType.CV_32FC2).also { receiptRectInOriginal ->
-            (0..<receiptRect.total().toInt()).forEach {
+            (0 until receiptRect.total().toInt()).forEach {
                 val point = receiptRect.get(it, 0)
                 receiptRectInOriginal.put(it, 0, floatArrayOf(
                     (point[0] * (1.0 / resizeRatio)).toFloat(),
@@ -97,7 +97,7 @@ object RectangleDetector {
     }
 
     private fun contourToRect(contour: Mat): Mat {
-        val points = (0..<contour.total().toInt()).map { Point(contour.get(it, 0)) }
+        val points = (0 until contour.total().toInt()).map { Point(contour.get(it, 0)) }
         val pointsSortedAscendingBySum: List<Point> = points.sortedBy { it.x + it.y }
         val pointsSortedAscendingByDiff: List<Point> = points.sortedBy { it.y - it.x }
         val pointsRepresentingRect = listOf(
@@ -153,7 +153,7 @@ object RectangleDetector {
             Imgproc.drawContours(
                 imageWithContours,
                 contours.map { contourMat -> MatOfPoint(
-                    *(0..<contourMat.total().toInt()).map { index ->
+                    *(0 until contourMat.total().toInt()).map { index ->
                         val point = contourMat.get(index, 0)
                         Point(
                             point[0] * contourScale,
