@@ -74,6 +74,20 @@ object ReceiptDetector {
             }
         }
 
+        val resultByReceiptEdgesConvexHull = ReceiptContourDetectorByReceiptEdges.detect(bitmap, true, returnProcessingBitmaps)
+        if (returnProcessingBitmaps) processingBitmaps.addAll(resultByReceiptEdgesConvexHull.processingBitmaps)
+        val contour3 = resultByReceiptEdgesConvexHull.contour
+        Log.d(TAG, "***** contour3 exists: ${contour3 != null}")
+        if (contour3 != null) {
+            val contourArea = Imgproc.contourArea(contour3, false)
+            Log.d(TAG, "***** contourArea1: $contourArea")
+            if (contourArea > contourAreaThreshold) {
+                val extractedBitmap = OpenCVUtils.extractBitmapByContour(bitmap, contour3)
+                if (returnProcessingBitmaps) processingBitmaps.add(extractedBitmap)
+                return ReceiptDetectResult(extractedBitmap, processingBitmaps)
+            }
+        }
+
         return ReceiptDetectResult(null, processingBitmaps)
     }
 }
