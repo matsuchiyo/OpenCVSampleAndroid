@@ -1,5 +1,6 @@
 package com.example.opencvsampleandroid
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
@@ -49,7 +50,7 @@ class MainActivity : AppCompatActivity() {
     private fun configureImages() {
         // ref: https://techbooster.org/android/multimedia/15681/
 
-        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.receipt_light)
+        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.receipt_with_hand)
 
         /*
         val mat = Mat()
@@ -63,10 +64,13 @@ class MainActivity : AppCompatActivity() {
         Utils.matToBitmap(mat, newBitmap)
          */
 
-        findViewById<ImageView>(R.id.image1).setImageBitmap(bitmap)
-        val newBitmap = RectangleDetector.detectRectangle(bitmap)
+//        findViewById<ImageView>(R.id.image1).setImageBitmap(bitmap)
+        val newBitmap = ReceiptDetector.detect(bitmap, false).bitmap
         if (newBitmap != null) {
-            findViewById<ImageView>(R.id.image2).setImageBitmap(newBitmap)
+            findViewById<ImageView>(R.id.image2).setImageBitmap(Bitmap.createScaledBitmap(newBitmap, 300, 600, false))
         }
+//        val newBitmap = ReceiptDetector.detect(bitmap, true).processingBitmaps
+//        findViewById<ImageView>(R.id.image1).setImageBitmap(Bitmap.createScaledBitmap(newBitmap[newBitmap.size - 2], 300, 600, false))
+//        findViewById<ImageView>(R.id.image2).setImageBitmap(Bitmap.createScaledBitmap(newBitmap[newBitmap.size - 1], 300, 600, false))
     }
 }
