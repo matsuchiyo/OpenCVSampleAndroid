@@ -153,7 +153,7 @@ object ReceiptContourDetectorByContent {
 
         Imgproc.cvtColor(imageMat, imageMat, Imgproc.COLOR_BGR2GRAY)
 
-        Imgproc.GaussianBlur(imageMat, imageMat, Size(31.0, 31.0), 0.0) // 可能な限りノイズを除去。かつ文字を残す(存在するのがわかる程度)。
+        Imgproc.GaussianBlur(imageMat, imageMat, Size(25.0, 25.0), 0.0) // 可能な限りノイズを除去。かつ文字を残す(存在するのがわかる程度)。
         if (returnProcessingBitmaps) processingBitmaps.add(OpenCVUtils.toBitmap(imageMat, bitmap))
 
         Imgproc.adaptiveThreshold(imageMat, imageMat, 255.0, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 11, 2.0)
