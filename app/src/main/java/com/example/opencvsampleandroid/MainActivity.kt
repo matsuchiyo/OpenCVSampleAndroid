@@ -6,8 +6,6 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
-import org.opencv.android.BaseLoaderCallback
-import org.opencv.android.LoaderCallbackInterface
 import org.opencv.android.OpenCVLoader
 
 
@@ -15,35 +13,16 @@ class MainActivity : AppCompatActivity() {
     companion object {
         const val TAG = "MainAct"
     }
-    private val mLoaderCallback: BaseLoaderCallback = object : BaseLoaderCallback(this) {
-        override fun onManagerConnected(status: Int) {
-            when (status) {
-                SUCCESS -> {
-                    Log.i(TAG, "OpenCV loaded successfully")
-                    configureImages()
-                }
 
-                else -> {
-                    super.onManagerConnected(status)
-                }
-            }
-        }
-    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-    }
 
-    override fun onResume() {
-        super.onResume()
-
-        // https://github.com/opencv/opencv/blob/b3d3acf75f007e7ca10a43309ada6360105e970e/samples/android/tutorial-1-camerapreview/src/org/opencv/samples/tutorial1/Tutorial1Activity.java#L75
-        if (!OpenCVLoader.initDebug()) {
-            Log.d(TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
-            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoaderCallback);
+        // https://github.com/opencv/opencv/pull/24575
+        if (OpenCVLoader.initLocal()) {
+            configureImages()
         } else {
-            Log.d(TAG, "OpenCV library found inside package. Using it!");
-            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+            Log.e(TAG, "Failed to load OpenCV.")
         }
     }
 

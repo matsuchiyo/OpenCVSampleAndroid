@@ -1,9 +1,22 @@
 # OpenCVSampleAndroid
 
-## setup
+## How to install OpenCV
+
+app/build.gradle: 
+
+ref: https://github.com/opencv/opencv/pull/24575
+
+```
+dependencies {
+    // ...
+    implementation 'org.opencv:opencv:4.9.0'
+}
+```
+
+## How to install OpenCV (less than 4.9.0)
 
 - Download opencv-x.x.x-android-sdk.zip from https://github.com/opencv/opencv/releases.
-- unsip
+- unzip
 - https://github.com/opencv/opencv/blob/e64857c5611d5898b7b30640a775331488a5ebef/modules/java/android_sdk/build.gradle.in#L6
   - > // Add module into Android Studio application project:
     > ...
