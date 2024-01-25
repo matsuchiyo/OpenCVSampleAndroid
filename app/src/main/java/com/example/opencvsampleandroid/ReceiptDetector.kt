@@ -29,9 +29,9 @@ data class ContourDetectResult(
 )
 object ReceiptDetector {
     const val TAG = "ReceiptDetector"
-    fun detect(bitmap: Bitmap, returnProcessingBitmaps: Boolean): ReceiptDetectResult {
-        val processingBitmaps = mutableListOf<Bitmap>()
-        if (returnProcessingBitmaps) processingBitmaps.add(bitmap)
+    fun detect(bitmap: Bitmap, returnBitmapsInProcess: Boolean): ReceiptDetectResult {
+        val bitmapsInProcess = mutableListOf<Bitmap>()
+        if (returnBitmapsInProcess) bitmapsInProcess.add(bitmap)
 
         val width = bitmap.width
         val height = bitmap.height
@@ -46,8 +46,8 @@ object ReceiptDetector {
         Log.d(TAG, "***** areaOfContourThatFillsImage: $areaOfContourThatFillsImage")
         val contourAreaThreshold = areaOfContourThatFillsImage / 10
 
-        val resultByReceiptEdges = ReceiptContourDetectorByReceiptEdges.detect(bitmap, false, returnProcessingBitmaps)
-        if (returnProcessingBitmaps) processingBitmaps.addAll(resultByReceiptEdges.processingBitmaps)
+        val resultByReceiptEdges = ReceiptContourDetectorByReceiptEdges.detect(bitmap, false, returnBitmapsInProcess)
+        if (returnBitmapsInProcess) bitmapsInProcess.addAll(resultByReceiptEdges.processingBitmaps)
         val contour = resultByReceiptEdges.contour
         Log.d(TAG, "***** contour1 exists: ${contour != null}")
         if (contour != null) {
@@ -55,13 +55,13 @@ object ReceiptDetector {
             Log.d(TAG, "***** contourArea1: $contourArea")
             if (contourArea > contourAreaThreshold) {
                 val extractedBitmap = OpenCVUtils.extractBitmapByContour(bitmap, contour)
-                if (returnProcessingBitmaps) processingBitmaps.add(extractedBitmap)
-                return ReceiptDetectResult(extractedBitmap, processingBitmaps)
+                if (returnBitmapsInProcess) bitmapsInProcess.add(extractedBitmap)
+                return ReceiptDetectResult(extractedBitmap, bitmapsInProcess)
             }
         }
 
-        val resultByReceiptContent = ReceiptContourDetectorByContent.detect(bitmap, returnProcessingBitmaps)
-        if (returnProcessingBitmaps) processingBitmaps.addAll(resultByReceiptContent.processingBitmaps)
+        val resultByReceiptContent = ReceiptContourDetectorByContent.detect(bitmap, returnBitmapsInProcess)
+        if (returnBitmapsInProcess) bitmapsInProcess.addAll(resultByReceiptContent.processingBitmaps)
         val contour2 = resultByReceiptContent.contour
         Log.d(TAG, "***** contour2 exists: ${contour2 != null}")
         if (contour2 != null) {
@@ -69,13 +69,13 @@ object ReceiptDetector {
             Log.d(TAG, "***** contourArea2: $contourArea")
             if (contourArea > contourAreaThreshold) {
                 val extractedBitmap = OpenCVUtils.extractBitmapByContour(bitmap, contour2)
-                if (returnProcessingBitmaps) processingBitmaps.add(extractedBitmap)
-                return ReceiptDetectResult(extractedBitmap, processingBitmaps)
+                if (returnBitmapsInProcess) bitmapsInProcess.add(extractedBitmap)
+                return ReceiptDetectResult(extractedBitmap, bitmapsInProcess)
             }
         }
 
-        val resultByReceiptEdgesConvexHull = ReceiptContourDetectorByReceiptEdges.detect(bitmap, true, returnProcessingBitmaps)
-        if (returnProcessingBitmaps) processingBitmaps.addAll(resultByReceiptEdgesConvexHull.processingBitmaps)
+        val resultByReceiptEdgesConvexHull = ReceiptContourDetectorByReceiptEdges.detect(bitmap, true, returnBitmapsInProcess)
+        if (returnBitmapsInProcess) bitmapsInProcess.addAll(resultByReceiptEdgesConvexHull.processingBitmaps)
         val contour3 = resultByReceiptEdgesConvexHull.contour
         Log.d(TAG, "***** contour3 exists: ${contour3 != null}")
         if (contour3 != null) {
@@ -83,18 +83,18 @@ object ReceiptDetector {
             Log.d(TAG, "***** contourArea1: $contourArea")
             if (contourArea > contourAreaThreshold) {
                 val extractedBitmap = OpenCVUtils.extractBitmapByContour(bitmap, contour3)
-                if (returnProcessingBitmaps) processingBitmaps.add(extractedBitmap)
-                return ReceiptDetectResult(extractedBitmap, processingBitmaps)
+                if (returnBitmapsInProcess) bitmapsInProcess.add(extractedBitmap)
+                return ReceiptDetectResult(extractedBitmap, bitmapsInProcess)
             }
         }
 
-        return ReceiptDetectResult(null, processingBitmaps)
+        return ReceiptDetectResult(null, bitmapsInProcess)
     }
 }
 
 object ReceiptContourDetectorByReceiptEdges {
-    fun detect(bitmap: Bitmap, convexHull: Boolean, returnProcessingBitmaps: Boolean): ContourDetectResult {
-        val processingBitmaps = mutableListOf<Bitmap>()
+    fun detect(bitmap: Bitmap, convexHull: Boolean, returnBitmapsInProcess: Boolean): ContourDetectResult {
+        val bitmapsInProcess = mutableListOf<Bitmap>()
 
         val original = Mat()
         Utils.bitmapToMat(bitmap, original)
@@ -107,15 +107,15 @@ object ReceiptContourDetectorByReceiptEdges {
         Imgproc.cvtColor(imageMat, imageMat, Imgproc.COLOR_BGR2GRAY)
 
         Imgproc.GaussianBlur(imageMat, imageMat, Size(5.0, 5.0), 0.0)
-        if (returnProcessingBitmaps) processingBitmaps.add(OpenCVUtils.toBitmap(imageMat, bitmap))
+        if (returnBitmapsInProcess) bitmapsInProcess.add(OpenCVUtils.toBitmap(imageMat, bitmap))
 
         val kernelForDilation = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, Size(9.0, 9.0))
         Imgproc.dilate(imageMat, imageMat, kernelForDilation)
-        if (returnProcessingBitmaps) processingBitmaps.add(OpenCVUtils.toBitmap(imageMat, bitmap))
+        if (returnBitmapsInProcess) bitmapsInProcess.add(OpenCVUtils.toBitmap(imageMat, bitmap))
 
         val edgesMat = Mat()
         Imgproc.Canny(imageMat, edgesMat, 100.0, 200.0, 3)
-        if (returnProcessingBitmaps) processingBitmaps.add(OpenCVUtils.toBitmap(edgesMat, bitmap))
+        if (returnBitmapsInProcess) bitmapsInProcess.add(OpenCVUtils.toBitmap(edgesMat, bitmap))
 
         val contours = mutableListOf<MatOfPoint>()
         val hierarchy = Mat()
@@ -123,7 +123,7 @@ object ReceiptContourDetectorByReceiptEdges {
 
         val sortedContours: List<MatOfPoint> = contours.sortedByDescending { Imgproc.contourArea(it, false) }
         var largestContours = sortedContours.subList(0, min(sortedContours.size, 10))
-        if (returnProcessingBitmaps) processingBitmaps.add(OpenCVUtils.toBitmap(OpenCVUtils.imageWithContourMat(original, largestContours, 1.0 / resizeRatio), bitmap))
+        if (returnBitmapsInProcess) bitmapsInProcess.add(OpenCVUtils.toBitmap(OpenCVUtils.imageWithContourMat(original, largestContours, 1.0 / resizeRatio), bitmap))
 
         if (convexHull) {
             largestContours = largestContours.map {
@@ -138,7 +138,7 @@ object ReceiptContourDetectorByReceiptEdges {
                 val points: Array<Point> = convexHullAppliedLargestContour.toTypedArray()
                 return@map MatOfPoint(*points)
             }
-            if (returnProcessingBitmaps) processingBitmaps.add(OpenCVUtils.toBitmap(OpenCVUtils.imageWithContourMat(original, largestContours, 1.0 / resizeRatio), bitmap))
+            if (returnBitmapsInProcess) bitmapsInProcess.add(OpenCVUtils.toBitmap(OpenCVUtils.imageWithContourMat(original, largestContours, 1.0 / resizeRatio), bitmap))
         }
 
         val receiptContour: Mat? = largestContours.firstOrNull {
@@ -148,14 +148,14 @@ object ReceiptContourDetectorByReceiptEdges {
         val sizeRestoredReceiptContour = receiptContour?.let { OpenCVUtils.scaleContour(it, 1.0 / resizeRatio) }
         return ContourDetectResult(
             sizeRestoredReceiptContour,
-            processingBitmaps,
+            bitmapsInProcess,
         )
     }
 }
 
 object ReceiptContourDetectorByContent {
-    fun detect(bitmap: Bitmap, returnProcessingBitmaps: Boolean): ContourDetectResult {
-        val processingBitmaps = mutableListOf<Bitmap>()
+    fun detect(bitmap: Bitmap, returnBitmapsInProcess: Boolean): ContourDetectResult {
+        val bitmapsInProcess = mutableListOf<Bitmap>()
 
         val original = Mat()
         Utils.bitmapToMat(bitmap, original)
@@ -168,14 +168,14 @@ object ReceiptContourDetectorByContent {
         Imgproc.cvtColor(imageMat, imageMat, Imgproc.COLOR_BGR2GRAY)
 
         Imgproc.GaussianBlur(imageMat, imageMat, Size(25.0, 25.0), 0.0) // 可能な限りノイズを除去。かつ文字を残す(存在するのがわかる程度)。
-        if (returnProcessingBitmaps) processingBitmaps.add(OpenCVUtils.toBitmap(imageMat, bitmap))
+        if (returnBitmapsInProcess) bitmapsInProcess.add(OpenCVUtils.toBitmap(imageMat, bitmap))
 
         Imgproc.adaptiveThreshold(imageMat, imageMat, 255.0, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 11, 2.0)
-        if (returnProcessingBitmaps) processingBitmaps.add(OpenCVUtils.toBitmap(imageMat, bitmap))
+        if (returnBitmapsInProcess) bitmapsInProcess.add(OpenCVUtils.toBitmap(imageMat, bitmap))
 
         val kernelForErosion = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, Size(61.0, 61.0))
         Imgproc.erode(imageMat, imageMat, kernelForErosion)
-        if (returnProcessingBitmaps) processingBitmaps.add(OpenCVUtils.toBitmap(imageMat, bitmap))
+        if (returnBitmapsInProcess) bitmapsInProcess.add(OpenCVUtils.toBitmap(imageMat, bitmap))
 
         Core.bitwise_not(imageMat, imageMat) // findContoursのため反転。
 
@@ -185,7 +185,7 @@ object ReceiptContourDetectorByContent {
 
         val sortedContours: List<MatOfPoint> = contours.sortedByDescending { Imgproc.contourArea(it, false) }
         val largestContours = sortedContours.subList(0, min(sortedContours.size, 10))
-        if (returnProcessingBitmaps) processingBitmaps.add(OpenCVUtils.toBitmap(OpenCVUtils.imageWithContourMat(original, largestContours, 1.0 / resizeRatio), bitmap))
+        if (returnBitmapsInProcess) bitmapsInProcess.add(OpenCVUtils.toBitmap(OpenCVUtils.imageWithContourMat(original, largestContours, 1.0 / resizeRatio), bitmap))
 
         val convexHullAppliedLargestContours: List<MatOfPoint> = largestContours.map {
             val indicesOfPointsWhichComposeHull = MatOfInt()
@@ -198,7 +198,7 @@ object ReceiptContourDetectorByContent {
             }
             OpenCVUtils.pointsToMatOfPoint(convexHullAppliedLargestContour)
         }
-        if (returnProcessingBitmaps) processingBitmaps.add(OpenCVUtils.toBitmap(OpenCVUtils.imageWithContourMat(original, convexHullAppliedLargestContours, 1.0 / resizeRatio), bitmap))
+        if (returnBitmapsInProcess) bitmapsInProcess.add(OpenCVUtils.toBitmap(OpenCVUtils.imageWithContourMat(original, convexHullAppliedLargestContours, 1.0 / resizeRatio), bitmap))
 
         val receiptContour: Mat? = largestContours.firstOrNull {
             val approx = OpenCVUtils.approximateContour(it)
@@ -207,7 +207,7 @@ object ReceiptContourDetectorByContent {
         val sizeRestoredReceiptContour = receiptContour?.let { OpenCVUtils.scaleContour(it, 1.0 / resizeRatio) }
         return ContourDetectResult(
             sizeRestoredReceiptContour,
-            processingBitmaps,
+            bitmapsInProcess,
         )
     }
 }
